@@ -10,7 +10,6 @@ DESCRIPTION: Simulation of Deutsch-Jozsa algorithm using Linear Algebra
         - Pie chart of the distribution
         - Verdict on wether the function is constant or balanced
 """
-import gc
 import matplotlib.pyplot as plt
 import numpy as np
 H = np.matrix(((1, 1), (1, -1))) / np.sqrt(2)
@@ -142,7 +141,6 @@ def deutsch_jozsa(f_map, num_qubits):
     return True if significant(measurement[0]) else False
 
 def main():
-    gc.enable()
     test_cases_file = open("test_cases.txt", "r")
 
     for case_no, line in enumerate(test_cases_file):
