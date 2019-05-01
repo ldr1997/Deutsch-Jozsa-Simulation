@@ -6,3 +6,5 @@ Name must be *test_cases.txt*. Each test case is separated by a newline, and eac
 
 # Running the Simulator
 Just run it using python, and it should look for the file name in the same directory.
+
+The main program is *deutsch_jozsa_simulator.py* which reads from a file. If you would like to manually input the function, run *deutsch_jozsa_simulator-user_input.py* instead.
