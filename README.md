@@ -8,3 +8,8 @@ Name must be *test_cases.txt*. Each test case is separated by a newline, and eac
 Just run it using python, and it should look for the file name in the same directory.
 
 The main program is *deutsch_jozsa_simulator.py* which reads from a file. If you would like to manually input the function, run *deutsch_jozsa_simulator-user_input.py* instead.
+
+# Analysis
+Important documents for analysis can be found here:
+- [Google Docs](https://docs.google.com/document/d/1rMLoWCHa7d1i_ChscfdBmQgr4zNYsaY8NyQ0loJWM2s/edit?usp=sharing)
+- [Spreadsheet for Results](https://docs.google.com/spreadsheets/d/14cN_VMUVvN13PpC8_N8PmErT1YSEfK3dSdGNpcWrFto/edit?usp=sharing)
