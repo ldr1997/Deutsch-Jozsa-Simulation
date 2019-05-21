@@ -1,6 +1,6 @@
 """
 AUTHOR: Luigi del Rosario, Brent Zaguirre
-DATE: 15 MAY, 2019
+DATE: 21 MAY, 2019
 DESCRIPTION: Simulation of Deutsch-Jozsa algorithm using Linear Algebra
     - NOTE: FILENAME of input should be test_cases.txt
     - INPUT #1 is the number of qubits, INCLUDING the ancilla bit
@@ -12,6 +12,7 @@ DESCRIPTION: Simulation of Deutsch-Jozsa algorithm using Linear Algebra
 
 CHANGES:
     - Added timer function to check times
+    - Modified to write to CSV file
 """
 import numpy as np
 from timeit import default_timer as timer 
@@ -21,6 +22,8 @@ Z = np.array(((1, 0), (0, -1)))
 X = np.array(((0, 1), (1, 0)))
 P0 = np.array(((1, 0), (0, 0)))
 P1 = np.array(((0, 0), (0, 1)))
+
+out_file = open("out_CPU.csv", "w+")
 
 def scale(qnum, op, num_qubits):
     """Generate a matrix that only applies gate 'op' to its respective qubit."""
@@ -33,7 +36,7 @@ def scale(qnum, op, num_qubits):
     for quantum_gate in gate_list[1:]:
         scaled = np.kron(scaled, quantum_gate)
     end = timer()
-    print("SCALE: {}".format(end-start))
+    out_file.write("{},".format(end-start))
     return scaled
 
 def scale_all(op, num_qubits, skip_last=False):
@@ -52,19 +55,13 @@ def get_tensor(vectors):
     for vector in vectors[1:]:
         tensor = np.kron(tensor, vector)
     end = timer()
-    print("GET TENSOR: {}".format(end-start))
+    out_file.write("{},".format(end-start))
     return tensor.transpose()
 
 def init_qubits(num_qubits):
     """Initialize all qubit vectors based on num_qubits."""
     q = [np.array([1,0]) for i in range(num_qubits)]
     return get_tensor(q)
-
-def CNOT(control, target, num_qubits):
-    """Generate CNOT based on the idea that CNOT = (P0 (x) I) + (P1 (x) X)."""
-    term_0 = scale(control, P0, num_qubits)
-    term_1 = np.matmul((scale(control, P1, num_qubits),scale(target, X, num_qubits)))
-    return term_0 + term_1
 
 def run_algo(op_list):
     """Execute all operations in a given list (multiply all matrices to each other)."""
@@ -74,7 +71,7 @@ def run_algo(op_list):
     for op in ops[1:]:
         result = np.matmul(op, result)
     end = timer()
-    print("EXECUTION: {}".format(end-start))
+    out_file.write("{},".format(end-start))
     return result
 
 def measure(result, num_qubits):
@@ -84,7 +81,7 @@ def measure(result, num_qubits):
     for index, value in enumerate(result.transpose().tolist()):
         measurement[index >> 1] += value * value
     end = timer()
-    print("MEASURE: {}".format(end-start))
+    out_file.write("{},".format(end-start))
     return measurement
 
 def significant(n):
@@ -105,16 +102,8 @@ def U(f_map, num_qubits):
         U[input_state, output_state] = 1 # set that part of U to 1
     #from pprint import pprint; import pdb; pdb.set_trace()
     end = timer()
-    print("U GATE: {}".format(end-start))
+    out_file.write("{},".format(end-start))
     return U
-
-def print_probabilities(measurement, num_qubits):
-    """Print the probability distribution of a measurement."""
-    print ("\n\tPROBABILITY DISTRIBUTION OF OUTCOMES:\n")
-    print ("\tOUTCOME\t\tP(n)")
-    print ("\t-------\t\t----")
-    for label, p in enumerate(measurement):
-        print ("\t{0:0{1}b}\t\t{2:.2%}".format(label, num_qubits-1, p))
 
 def deutsch_jozsa(f_map, num_qubits):
     """Run the Deutsch-Jozsa Algorithm. Returns T if constant and F if balanced."""
@@ -124,7 +113,7 @@ def deutsch_jozsa(f_map, num_qubits):
     op_list.append(scale(num_qubits-1, X, num_qubits)) # Set last qubit to |1>
 
     # START: H on all qubits
-    op_list.append(scale_all(H, num_qubits))
+    op_list.append(scale_all(H, num_qubits)) 
 
     # Apply oracle function based on user-input f_map
     op_list.append(U(f_map, num_qubits))
@@ -147,12 +136,13 @@ def deutsch_jozsa(f_map, num_qubits):
     return (True if significant(measurement[0]) else False)
 
 def main():
-    test_cases_file = open("test_cases.txt", "r")
+    test_cases_file = open("in.txt", "r")
 
-    for case_no, line in enumerate(test_cases_file):
+    for line in test_cases_file:
         f_map = list(map(int, line.split()))
         num_qubits = f_map.pop(0)
-        result= deutsch_jozsa(f_map, num_qubits)
-        print("\nCASE {}: {}\n-----\n".format(case_no+1, ("CONSTANT" if result else "BALANCED")))
+        deutsch_jozsa(f_map, num_qubits)
+        out_file.write("\n")
     test_cases_file.close()
+    out_file.close()
 main()
